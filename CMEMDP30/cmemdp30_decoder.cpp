@@ -245,7 +245,7 @@ public:
 						index += block_length;
 					}
 
-					printf("%s Group in %u/%d\n",f.name.c_str(),block_length,num_group);
+					//printf("%s Group in %u/%d\n",f.name.c_str(),block_length,num_group);
 					for(;msg.fields[i].group.name==f.group.name;i++);
 					i--;
 				}
@@ -415,7 +415,7 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	while(start_index+10<tvb_captured_length(tvb))
 	{
 		int block_length=tvb_get_guint16(tvb, start_index, ENC_LITTLE_ENDIAN);
-		printf("CME Msg length : %d\n",block_length);
+		//printf("CME Msg length : %d\n",block_length);
 	proto_tree_add_item(proto_subtree_m, proto_list["MsgSize"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
 	start_index += 2;
 	proto_tree_add_item(proto_subtree_m, proto_list["BlockLength"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
@@ -429,11 +429,11 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	proto_tree_add_item(proto_subtree_m, proto_list["Version"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
 	start_index += 2;
 
-	printf("Template decode start : %d\n",start_index);
+	//printf("Template decode start : %d\n",start_index);
 	int index=start_index;
 	proto_list.tree_add_template(proto_subtree_m, tvb, template_id, index);
 	start_index+=block_length-10;
-	printf("Template decode end : %d\n",start_index);
+	//printf("Template decode end : %d\n",start_index);
 	}
 	return start_index+1;
 }
