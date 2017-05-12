@@ -44,7 +44,7 @@ struct Field {
 };
 
 struct Message {
-	string name, id;
+	string name, id,blockLength;
 	vector<Field> fields;
 };
 
@@ -197,7 +197,7 @@ public:
 	void tree_add_template(proto_tree * tree, tvbuff_t * tvb, int template_id, int &index) {
 		Message &msg = messages[template_id];
 		//printf("Decoding Template: %d - %s\n", template_id, msg.name.c_str());
-
+		int msg_start_index=index;
 		for (int i=0;i<msg.fields.size();i++) {
 			const auto &f=msg.fields[i];
 			if(f.name.size()==0)
@@ -212,11 +212,15 @@ public:
 			//Todo add logic for group
 			if(is_group)
 			{
-
 				string group_type=f.group.dimensionType;
+				if(index-msg_start_index < atoi(msg.blockLength.c_str()))
+					index += atoi(msg.blockLength.c_str()) -(index-msg_start_index);
+
 				//Get groups type to determine length
-				if(group_type=="groupSize")
+				if(group_type=="groupSize" || group_type=="groupSize8Byte")
 				{
+					if(group_type == "groupSize8Byte")
+						index +=5;
 					uint16_t block_length=tvb_get_guint16(tvb, index,ENC_LITTLE_ENDIAN);
 					index+=2;
 					uint8_t num_group=tvb_get_guint8(tvb, index);
@@ -225,8 +229,8 @@ public:
 					//Add fields in loop for groups
 					for(int j=0;j<num_group;j++)
 					{
-
-						for(int k=i;msg.fields[k].group.name==f.group.name;k++)
+						int index_start=index;
+						for(int k=i;k<msg.fields.size() && msg.fields[k].group.name==f.group.name;k++)
 						{
 							const auto &f=msg.fields[k];
 
@@ -236,19 +240,19 @@ public:
 							{
 								is_constant=types[f.type].const_value.size()>0;
 							}
-							addFieldToProtoTree(tree, tvb, index,is_composite,is_constant,f);
+							addFieldToProtoTree(tree, tvb, index_start,is_composite,is_constant,f);
 						}
+						index += block_length;
 					}
 
-					//printf("%s Group in %s %u/%d\n",f.name.c_str(),group_type.c_str(),block_length,num_group);
-
+					printf("%s Group in %u/%d\n",f.name.c_str(),block_length,num_group);
+					for(;msg.fields[i].group.name==f.group.name;i++);
+					i--;
 				}
 				else
 				{
 					printf("Unable to handle %s, Possible Bug please report this.",group_type.c_str());
 				}
-				for(;msg.fields[i].group.name==f.group.name;i++);
-				i--;
 			}
 			else
 			addFieldToProtoTree(tree, tvb, index,is_composite,is_constant,f);
@@ -347,6 +351,7 @@ public:
 				Message msg;
 				getFirstAttrValue(node, "name", msg.name);
 				getFirstAttrValue(node, "id", msg.id);
+				getFirstAttrValue(node, "blockLength", msg.blockLength);
 
 				for (auto field = node->first_node(); field; field = field->next_sibling()) {
 
@@ -409,6 +414,8 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	start_index += 8;
 	while(start_index+10<tvb_captured_length(tvb))
 	{
+		int block_length=tvb_get_guint16(tvb, start_index, ENC_LITTLE_ENDIAN);
+		printf("CME Msg length : %d\n",block_length);
 	proto_tree_add_item(proto_subtree_m, proto_list["MsgSize"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
 	start_index += 2;
 	proto_tree_add_item(proto_subtree_m, proto_list["BlockLength"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
@@ -422,7 +429,11 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	proto_tree_add_item(proto_subtree_m, proto_list["Version"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
 	start_index += 2;
 
-	proto_list.tree_add_template(proto_subtree_m, tvb, template_id, start_index);
+	printf("Template decode start : %d\n",start_index);
+	int index=start_index;
+	proto_list.tree_add_template(proto_subtree_m, tvb, template_id, index);
+	start_index+=block_length-10;
+	printf("Template decode end : %d\n",start_index);
 	}
 	return start_index+1;
 }
