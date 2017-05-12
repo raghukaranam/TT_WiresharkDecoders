@@ -382,6 +382,8 @@
     <ns2:message name="MDIncrementalRefreshBook32" id="32" description="MDIncrementalRefreshBook" blockLength="11" semanticType="X" sinceVersion="2">
         <field name="TransactTime" id="60" type="uInt64" description="Start of event processing time in number of nanoseconds since Unix epoch" offset="0" semanticType="UTCTimestamp"/>
         <field name="MatchEventIndicator" id="5799" type="MatchEventIndicator" description="Bitmap field of eight Boolean type indicators reflecting the end of updates for a given Globex event" offset="8" semanticType="MultipleCharValue"/>
+                    <field name="MDPriceLevelt1" id="1023" type="uInt8" description="Aggregate book level" offset="24" semanticType="int"/>
+                    <field name="MDPriceLevelt2" id="1023" type="uInt8" description="Aggregate book level" offset="24" semanticType="int"/>
         <group name="NoMDEntries" id="268" description="Number of entries in Market Data message" blockLength="32" dimensionType="groupSize">
             <field name="MDEntryPx" id="270" type="PRICENULL" description="Market Data entry price" offset="0" semanticType="Price"/>
             <field name="MDEntrySize" id="271" type="Int32NULL" description="Market Data entry size" offset="8" semanticType="Qty"/>
