@@ -246,7 +246,7 @@ public:
 					}
 
 					//printf("%s Group in %u/%d\n",f.name.c_str(),block_length,num_group);
-					for(;msg.fields[i].group.name==f.group.name;i++);
+					for(;i<msg.fields.size() && msg.fields[i].group.name==f.group.name;i++);
 					i--;
 				}
 				else
