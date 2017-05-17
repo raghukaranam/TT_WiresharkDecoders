@@ -9,6 +9,7 @@
 #include<map>
 #include<list>
 #include<string>
+#include<tuple>
 using namespace std;
 #include <config.h>
 #include <epan/packet.h>
@@ -16,18 +17,24 @@ void proto_register_cmemdp(void);
 void proto_reg_handoff_cmemdp(void);
 
 extern "C" {
+#if defined(_WIN64)
+__declspec(dllexport)
+#endif
 void plugin_register(void) {
 	proto_register_cmemdp();
 }
-
+#if defined(_WIN64)
+__declspec(dllexport)
+#endif
 void plugin_reg_handoff(void) {
 	proto_reg_handoff_cmemdp();
 }
-}
+#if defined(_WIN64)
+__declspec(dllexport)
+#endif
+gchar version[30] = "0.1";
 
-#define MYPROTO_PORT  14341    /*for udp port */
-/*__declspec(dllexport)*/
-/*WS_DLL_PUBLIC_DEF*/ gchar version[30] = "0.1";
+}
 
 static int ett_cmemdp30 = -1, ett_proto_cmemdp_msg = -1;
 static int proto_cmemdp = -1;
@@ -44,7 +51,7 @@ struct Field {
 };
 
 struct Message {
-	string name, id,blockLength;
+	string name, id, blockLength;
 	vector<Field> fields;
 };
 
@@ -94,6 +101,7 @@ public:
 		tmp.hfinfo.name = name;
 		tmp.hfinfo.type = _ft_entype;
 		tmp.hfinfo.display = display;
+		//printf("%s = %d\r\n",name,_ft_entype);
 		hf_list.push_back(tmp);
 	}
 	auto registerFields(int protocol) {
@@ -161,7 +169,7 @@ public:
 	int getLenOfType(string type) {
 		return get<0>(getTypeInfo(type));
 	}
-	void addFieldToProtoTree(proto_tree * tree, tvbuff_t * tvb, int &index,bool is_composite,bool is_constant,const Field &f)
+	void addFieldToProtoTree(proto_tree * tree, tvbuff_t * tvb, unsigned int &index,bool is_composite,bool is_constant,const Field &f)
 	{
 		int len=0;
 		if(is_composite)
@@ -194,11 +202,11 @@ public:
 			index+=len;
 		}
 	}
-	void tree_add_template(proto_tree * tree, tvbuff_t * tvb, int template_id, int &index) {
+	void tree_add_template(proto_tree * tree, tvbuff_t * tvb, int template_id, unsigned int &index) {
 		Message &msg = messages[template_id];
 		//printf("Decoding Template: %d - %s\n", template_id, msg.name.c_str());
 		int msg_start_index=index;
-		for (int i=0;i<msg.fields.size();i++) {
+		for (size_t i=0;i<msg.fields.size();i++) {
 			const auto &f=msg.fields[i];
 			if(f.name.size()==0)
 			continue;
@@ -213,14 +221,14 @@ public:
 			if(is_group)
 			{
 				string group_type=f.group.dimensionType;
-				if(index-msg_start_index < atoi(msg.blockLength.c_str()))
-					index += atoi(msg.blockLength.c_str()) -(index-msg_start_index);
+				if(index-msg_start_index < (unsigned)atoi(msg.blockLength.c_str()))
+				index += atoi(msg.blockLength.c_str()) -(index-msg_start_index);
 
 				//Get groups type to determine length
 				if(group_type=="groupSize" || group_type=="groupSize8Byte")
 				{
 					if(group_type == "groupSize8Byte")
-						index +=5;
+					index +=5;
 					uint16_t block_length=tvb_get_guint16(tvb, index,ENC_LITTLE_ENDIAN);
 					index+=2;
 					uint8_t num_group=tvb_get_guint8(tvb, index);
@@ -229,8 +237,8 @@ public:
 					//Add fields in loop for groups
 					for(int j=0;j<num_group;j++)
 					{
-						int index_start=index;
-						for(int k=i;k<msg.fields.size() && msg.fields[k].group.name==f.group.name;k++)
+						unsigned int index_start=index;
+						for(size_t k=i;k<msg.fields.size() && msg.fields[k].group.name==f.group.name;k++)
 						{
 							const auto &f=msg.fields[k];
 
@@ -290,8 +298,7 @@ public:
 			}
 		}
 	}
-	void parseTemplatesXML(const char *xml) {
-		int _xml_len = strlen(xml);
+	void parseTemplatesXML(const char *xml,int _xml_len) {
 		char data[_xml_len + 1];
 		data[_xml_len] = 0;
 		memcpy(data, xml, _xml_len);
@@ -400,9 +407,9 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
 	proto_tree* ti1 = proto_tree_add_item(tree, proto_cmemdp, tvb, 0, -1, ENC_NA);
 	proto_tree* proto_subtree = proto_item_add_subtree(ti1, ett_cmemdp30);
-	int start_index = 0;
+	unsigned int start_index = 0;
 	proto_tree* proto_subtree_m = proto_item_add_subtree(ti1, ett_proto_cmemdp_msg);
-	auto proto_seq = proto_tree_add_item(proto_subtree, proto_list["MsgSeqNum"], tvb, start_index, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(proto_subtree, proto_list["MsgSeqNum"], tvb, start_index, 4, ENC_LITTLE_ENDIAN);
 	start_index += 4;
 	guint64 timestamp;
 	nstime_t ts_nstime;
@@ -410,49 +417,48 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	ts_nstime.secs = timestamp / 1000000000;
 	ts_nstime.nsecs = timestamp % 1000000000;
 
-	proto_tree_add_time(proto_subtree, proto_list["Timestamp"], tvb, start_index, 8, &ts_nstime);
+	proto_tree_add_time(proto_subtree, proto_list["CMETimestamp"], tvb, start_index, 8, &ts_nstime);
 	start_index += 8;
-	while(start_index+10<tvb_captured_length(tvb))
-	{
-		int block_length=tvb_get_guint16(tvb, start_index, ENC_LITTLE_ENDIAN);
+	while (start_index + 10 < tvb_reported_length(tvb)) {
+		int block_length = tvb_get_guint16(tvb, start_index, ENC_LITTLE_ENDIAN);
 		//printf("CME Msg length : %d\n",block_length);
-	proto_tree_add_item(proto_subtree_m, proto_list["MsgSize"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree_m, proto_list["BlockLength"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
+		proto_tree_add_item(proto_subtree_m, proto_list["MsgSize"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
+		proto_tree_add_item(proto_subtree_m, proto_list["BlockLength"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
 
-	int template_id = tvb_get_guint16(tvb, start_index, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(proto_subtree_m, proto_list["TemplateID"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree_m, proto_list["SchemaID"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree_m, proto_list["Version"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
+		int template_id = tvb_get_guint16(tvb, start_index, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(proto_subtree_m, proto_list["TemplateID"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
+		proto_tree_add_item(proto_subtree_m, proto_list["SchemaID"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
+		proto_tree_add_item(proto_subtree_m, proto_list["Version"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
 
-	//printf("Template decode start : %d\n",start_index);
-	int index=start_index;
-	proto_list.tree_add_template(proto_subtree_m, tvb, template_id, index);
-	start_index+=block_length-10;
-	//printf("Template decode end : %d\n",start_index);
+		//printf("Template decode start : %d\n",start_index);
+		unsigned int index = start_index;
+		proto_list.tree_add_template(proto_subtree_m, tvb, template_id, index);
+		start_index += block_length - 10;
+		//printf("Template decode end : %d\n",start_index);
 	}
-	return start_index+1;
+	return start_index + 1;
 }
 guint8 dissect_inner_pdu(proto_tree *, tvbuff_t *, guint, guint8, packet_info *, proto_item *) {
 	return 0;
 }
 
 void proto_register_cmemdp(void) {
-	extern char _binary____CMEMDP30_templates_FixBinary_xml_start;
-	const char * templates_xml = &_binary____CMEMDP30_templates_FixBinary_xml_start;
-	proto_list.parseTemplatesXML(templates_xml);
-
+	extern char _binary____CMEMDP30_templates_FixBinary_xml_start, _binary____CMEMDP30_templates_FixBinary_xml_end;
+	int size_templates_xml = (&_binary____CMEMDP30_templates_FixBinary_xml_end - &_binary____CMEMDP30_templates_FixBinary_xml_start);
+	char * templates_xml = &_binary____CMEMDP30_templates_FixBinary_xml_start;
 	proto_list.add("MsgSeqNum", FT_UINT32);
-	proto_list.add("Timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
+	proto_list.add("CMETimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
 	proto_list.add("MsgSize", FT_UINT16);
 	proto_list.add("BlockLength", FT_UINT16);
 	proto_list.add("TemplateID", FT_UINT16);
 	proto_list.add("SchemaID", FT_UINT16);
 	proto_list.add("Version", FT_UINT16);
+	proto_list.parseTemplatesXML(templates_xml, size_templates_xml);
 
 	/** Setup protocol subtree array */
 	static gint *ett[] = { &ett_cmemdp30, &ett_proto_cmemdp_msg };
@@ -477,7 +483,12 @@ void proto_reg_handoff_cmemdp(void) {
 	dissector_handle_t myproto_handle;
 
 	myproto_handle = create_dissector_handle(dissect_cmemdp, proto_cmemdp);
-	const int cme_ports[]={10000,14310,14311,14312,14313,14314,14315,14316,14317,14318,14319,14320,14321,14340,14341,14342,14343,14344,14345,14346,14360,14361,14380,14381,14382,14383,14384,14385,14386,14387,14410,14411,14430,14431,14440,14441,14450,14460,14461,14520,14521,15310,15311,15312,15313,15314,15315,15316,15317,15318,15319,15320,15321,15340,15341,15342,15343,15344,15345,15346,15360,15361,15380,15381,15382,15383,15384,15385,15386,15387,15410,15411,15430,15431,15440,15441,15450,15460,15461,15520,15521,22310,22311,22312,22313,22314,22315,22316,22317,22318,22319,22320,22321,22340,22341,22342,22343,22344,22345,22346,22360,22361,22380,22381,22382,22383,22384,22385,22386,22387,22410,22411,22430,22431,22440,22441,22450,22460,22461,23310,23311,23312,23313,23314,23315,23316,23317,23318,23319,23320,23321,23340,23341,23342,23343,23344,23345,23346,23360,23361,23380,23381,23382,23383,23384,23385,23386,23387,23410,23411,23430,23431,23440,23441,23450,23460,23461};
-	for(const auto &port:cme_ports)
-	dissector_add_uint("udp.port", port, myproto_handle);
+	const int cme_ports[] = { 10000, 14310, 14311, 14312, 14313, 14314, 14315, 14316, 14317, 14318, 14319, 14320, 14321, 14340, 14341, 14342, 14343, 14344, 14345, 14346, 14360, 14361, 14380, 14381,
+			14382, 14383, 14384, 14385, 14386, 14387, 14410, 14411, 14430, 14431, 14440, 14441, 14450, 14460, 14461, 14520, 14521, 15310, 15311, 15312, 15313, 15314, 15315, 15316, 15317, 15318, 15319,
+			15320, 15321, 15340, 15341, 15342, 15343, 15344, 15345, 15346, 15360, 15361, 15380, 15381, 15382, 15383, 15384, 15385, 15386, 15387, 15410, 15411, 15430, 15431, 15440, 15441, 15450, 15460,
+			15461, 15520, 15521, 22310, 22311, 22312, 22313, 22314, 22315, 22316, 22317, 22318, 22319, 22320, 22321, 22340, 22341, 22342, 22343, 22344, 22345, 22346, 22360, 22361, 22380, 22381, 22382,
+			22383, 22384, 22385, 22386, 22387, 22410, 22411, 22430, 22431, 22440, 22441, 22450, 22460, 22461, 23310, 23311, 23312, 23313, 23314, 23315, 23316, 23317, 23318, 23319, 23320, 23321, 23340,
+			23341, 23342, 23343, 23344, 23345, 23346, 23360, 23361, 23380, 23381, 23382, 23383, 23384, 23385, 23386, 23387, 23410, 23411, 23430, 23431, 23440, 23441, 23450, 23460, 23461 };
+	for (const auto &port : cme_ports)
+		dissector_add_uint("udp.port", port, myproto_handle);
 }
