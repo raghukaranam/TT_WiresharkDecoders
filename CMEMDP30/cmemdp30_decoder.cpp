@@ -16,6 +16,15 @@ using namespace std;
 void proto_register_cmemdp(void);
 void proto_reg_handoff_cmemdp(void);
 
+#ifdef __WIRESHARK_1_8_10
+#define tvb_get_guint16(a,b,c) tvb_get_letohs(a,b)
+#define HFILL_INIT(hf)   \
+	hf.hfinfo.id			= -1;   \
+	hf.hfinfo.parent		= 0;   \
+	hf.hfinfo.ref_type		= HF_REF_TYPE_NONE;   \
+	hf.hfinfo.same_name_next	= NULL;
+#endif
+
 extern "C" {
 #if defined(_WIN64)
 __declspec(dllexport)
@@ -399,7 +408,13 @@ public:
 
 Protocol proto_list("CMEMDP30");
 
-static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data) {
+static
+#ifdef __WIRESHARK_1_8_10
+void dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+#else
+int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+#endif
+{
 	//Sets str in Tree.
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CME MDP 3.0");
 	//Clears Info
@@ -441,7 +456,9 @@ static int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 		start_index += block_length - 10;
 		//printf("Template decode end : %d\n",start_index);
 	}
+#ifndef __WIRESHARK_1_8_10
 	return start_index + 1;
+#endif
 }
 guint8 dissect_inner_pdu(proto_tree *, tvbuff_t *, guint, guint8, packet_info *, proto_item *) {
 	return 0;
