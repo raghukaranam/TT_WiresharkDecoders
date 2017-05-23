@@ -10,9 +10,14 @@
 #include<list>
 #include<string>
 #include<tuple>
-using namespace std;
 #include <config.h>
 #include <epan/packet.h>
+#ifdef __APPLE__
+#include <mach-o/getsect.h>
+#endif
+
+using namespace std;
+
 void proto_register_cmemdp(void);
 void proto_reg_handoff_cmemdp(void);
 
@@ -414,7 +419,7 @@ void dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 #else
 int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 #endif
-{
+		{
 	//Sets str in Tree.
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CME MDP 3.0");
 	//Clears Info
@@ -465,9 +470,17 @@ guint8 dissect_inner_pdu(proto_tree *, tvbuff_t *, guint, guint8, packet_info *,
 }
 
 void proto_register_cmemdp(void) {
+#ifdef __APPLE__
+#define LDVAR(NAME) ((char *)(getsectbyname("__DATA", "__" #NAME)->addr))
+#define LDLEN(NAME) (getsectbyname("__DATA", "__" #NAME)->size)
+	int size_templates_xml = LDLEN(FixBinaryXml);
+    char  *templates_xml = LDVAR(FixBinaryXml);
+#else
 	extern char _binary____CMEMDP30_templates_FixBinary_xml_start, _binary____CMEMDP30_templates_FixBinary_xml_end;
 	int size_templates_xml = (&_binary____CMEMDP30_templates_FixBinary_xml_end - &_binary____CMEMDP30_templates_FixBinary_xml_start);
 	char * templates_xml = &_binary____CMEMDP30_templates_FixBinary_xml_start;
+#endif
+
 	proto_list.add("MsgSeqNum", FT_UINT32);
 	proto_list.add("CMETimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
 	proto_list.add("MsgSize", FT_UINT16);
