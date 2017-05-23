@@ -12,9 +12,6 @@
 #include<tuple>
 #include <config.h>
 #include <epan/packet.h>
-#ifdef __APPLE__
-#include <mach-o/getsect.h>
-#endif
 
 using namespace std;
 
@@ -273,7 +270,7 @@ public:
 				}
 				else
 				{
-					printf("Unable to handle %s, Possible Bug please report this.",group_type.c_str());
+					//printf("Unable to handle %s, Possible Bug please report this.",group_type.c_str());
 				}
 			}
 			else
@@ -316,7 +313,7 @@ public:
 		char data[_xml_len + 1];
 		data[_xml_len] = 0;
 		memcpy(data, xml, _xml_len);
-
+		//printf("Template: %s\n",data);
 		//map<string,FixTagAttributes> &tags=TAG_DEFINITIONS;
 		using namespace rapidxml;
 		xml_document<> doc;
@@ -348,7 +345,7 @@ public:
 								/*
 								 data.name=t.name +"."+ data.name;
 								 types[data.name]=data;
-								 printf("Added Composite: %s\n",data.name.c_str());*/
+								 //printf("Added Composite: %s\n",data.name.c_str());*/
 							}
 						}
 					} else if (tagname == "enum" || tagname == "set") {
@@ -362,7 +359,7 @@ public:
 							if (tagname == "validValue" || tagname == "choice") {
 								string e_name, e_value = composite_type->value();
 								getFirstAttrValue(composite_type, "name", e_name);
-								//printf("%s: %s = %s\n",tagvalue.c_str(),e_name.c_str(),e_value.c_str());
+								////printf("%s: %s = %s\n",tagvalue.c_str(),e_name.c_str(),e_value.c_str());
 								etypes[t.name][e_name] = e_value;
 							}
 						}
@@ -468,13 +465,10 @@ int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
 guint8 dissect_inner_pdu(proto_tree *, tvbuff_t *, guint, guint8, packet_info *, proto_item *) {
 	return 0;
 }
-
 void proto_register_cmemdp(void) {
 #ifdef __APPLE__
-#define LDVAR(NAME) ((char *)(getsectbyname("__DATA", "__" #NAME)->addr))
-#define LDLEN(NAME) (getsectbyname("__DATA", "__" #NAME)->size)
-	int size_templates_xml = LDLEN(FixBinaryXml);
-    char  *templates_xml = LDVAR(FixBinaryXml);
+	int size_templates_xml = (int)___CMEMDP30_templates_FixBinary_xml_len;
+    char  *templates_xml = (char *)___CMEMDP30_templates_FixBinary_xml;
 #else
 	extern char _binary____CMEMDP30_templates_FixBinary_xml_start, _binary____CMEMDP30_templates_FixBinary_xml_end;
 	int size_templates_xml = (&_binary____CMEMDP30_templates_FixBinary_xml_end - &_binary____CMEMDP30_templates_FixBinary_xml_start);

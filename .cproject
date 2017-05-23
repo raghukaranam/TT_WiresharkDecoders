@@ -552,7 +552,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="so" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.cross.so.debug.1594732247.1492617464.772922379.157198004" name="Release-MACOS-10.12.3" parent="cdt.managedbuild.config.gnu.cross.so.debug" postbuildStep="" preannouncebuildStep="" prebuildStep="">
+				<configuration artifactExtension="so" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.sharedLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.sharedLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.cross.so.debug.1594732247.1492617464.772922379.157198004" name="Release-MACOS-10.12.3" parent="cdt.managedbuild.config.gnu.cross.so.debug" postbuildStep="" preannouncebuildStep="Generate template into cstruct" prebuildStep="xxd -i ../CMEMDP30/templates_FixBinary.xml cme_templates.h">
 					<folderInfo id="cdt.managedbuild.config.gnu.cross.so.debug.1594732247.1492617464.772922379.157198004." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.so.debug.1098970385" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.so.debug">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.2055304163" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
@@ -570,6 +570,7 @@
 								<option id="gnu.cpp.compiler.option.debugging.level.1003381637" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.136821048" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/local/Cellar/glib/2.52.2/lib/glib-2.0/include/"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Release-MACOS-10.12.3}&quot;"/>
 									<listOptionValue builtIn="false" value="../Dependencies/MacOS/wireshark-2.2.6"/>
 									<listOptionValue builtIn="false" value="../Dependencies/MacOS/rapidxml-1.13"/>
 									<listOptionValue builtIn="false" value="/usr/local/Cellar/glib/2.52.2/include/glib-2.0/"/>
@@ -580,6 +581,7 @@
 								<option id="gnu.cpp.compiler.option.dialect.std.394015265" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.files.1062894874" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
 									<listOptionValue builtIn="false" value="rapidxml.hpp"/>
+									<listOptionValue builtIn="false" value="cme_templates.h"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.flags.390739239" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++14" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.warnings.toerrors.411748668" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" useByScannerDiscovery="false" value="true" valueType="boolean"/>
