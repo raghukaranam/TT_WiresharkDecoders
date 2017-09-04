@@ -21,7 +21,7 @@ using namespace std;
 static int ett_euronext_optiq = -1, ett_proto_euronext_optiq_msg = -1;
 static int proto_euronext_optiq = -1;
 
-Protocol euronext_optiq_proto_list("EURONEXT XDP");
+Protocol euronext_optiq_proto_list("EURONEXT Optiq");
 
 static
 #ifdef __WIRESHARK_1_8_10
@@ -31,38 +31,38 @@ int dissect_euronext_optiq(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tre
 #endif
 		{
 	//Sets str in Tree.
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EURONEXT XDP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EURONEXT Optiq");
 	//Clears Info
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	proto_tree* ti1 = proto_tree_add_item(tree, proto_euronext_optiq, tvb, 0, -1, ENC_NA);
 	proto_tree* proto_subtree = proto_item_add_subtree(ti1, ett_euronext_optiq);
 	unsigned int start_index = 0;
-	proto_tree_add_item(proto_subtree, euronext_optiq_proto_list["PktSize"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree, euronext_optiq_proto_list["MsgCount"], tvb, start_index, 1, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree, euronext_optiq_proto_list["SeqNum"], tvb, start_index, 4, ENC_LITTLE_ENDIAN);
-	start_index += 4;
-	guint64 timestamp;
-	nstime_t ts_nstime;
-	timestamp = tvb_get_letoh64(tvb, start_index);
-	ts_nstime.secs = timestamp / 1000000000;
-	ts_nstime.nsecs = timestamp % 1000000000;
 
-	proto_tree_add_time(proto_subtree, euronext_optiq_proto_list["SendTimestamp"], tvb, start_index, 8, &ts_nstime);
-	start_index += 8;
+		guint64 timestamp;
+		nstime_t ts_nstime;
+		timestamp = tvb_get_letoh64(tvb, 0);
+		ts_nstime.secs = timestamp / 1000000000;
+		ts_nstime.nsecs = timestamp % 1000000000;
+
+		proto_tree_add_time(proto_subtree, euronext_optiq_proto_list["OptiqTimestamp"], tvb, start_index, 8, &ts_nstime);
+		start_index += 8;
+		proto_tree_add_item(proto_subtree, euronext_optiq_proto_list["PacketSeqNum"], tvb, start_index, 4, ENC_LITTLE_ENDIAN);
+		start_index += 4;
+		proto_tree_add_item(proto_subtree, euronext_optiq_proto_list["PacketFlagsNum"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
+		proto_tree_add_item(proto_subtree, euronext_optiq_proto_list["ChannelID"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
+		start_index += 2;
 #ifndef __WIRESHARK_1_8_10
 	return start_index + 1;
 #endif
 }
 void proto_register_euronext_optiq(void) {
-	euronext_optiq_proto_list.add("SeqNum", FT_UINT32);
-	euronext_optiq_proto_list.add("SendTimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
-	euronext_optiq_proto_list.add("MsgSize", FT_UINT16);
-	euronext_optiq_proto_list.add("PktSize", FT_UINT16);
-	euronext_optiq_proto_list.add("MsgCount", FT_UINT8);
-	euronext_optiq_proto_list.add("MsgType", FT_UINT16);
+	euronext_optiq_proto_list.add("OptiqTimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
+	euronext_optiq_proto_list.add("PacketSeqNum", FT_UINT32);
+	euronext_optiq_proto_list.add("PacketFlagsNum", FT_UINT16);
+	euronext_optiq_proto_list.add("ChannelID", FT_UINT16);
+
 
 	/** Setup protocol subtree array */
 	static gint *ett[] = { &ett_euronext_optiq, &ett_proto_euronext_optiq_msg };
@@ -88,7 +88,7 @@ void proto_reg_handoff_euronext_optiq(void) {
 	dissector_handle_t myproto_handle;
 
 	myproto_handle = create_dissector_handle(dissect_euronext_optiq, proto_euronext_optiq);
-	const int registered_ports[] = { 55001,55002,55003,55004,55005,55006,55007,55008,55009,55010 };
+	const int registered_ports[] = { 10140,10144,10175,10179,10180,10184,10185,10189,10190,10194,10200,10204,10210,10214,10215,10219,10220,10224,10230,10234,10240,10244,10245,10249,11140,11144,11175,11179,11180,11184,11185,11189,11190,11194,11200,11204,11210,11214,11215,11219,11220,11224,11230,11234,11240,11244,1985,20140,20143,20175,20178,20180,20183,20185,20188,20190,20193,20200,20203,20210,20213,20215,20218,20220,20223,20230,20233,20240,20243,20245,20248,21140,21143,21175,21178,21180,21183,21185,21188,21190,21193,21200,21203,21210,21213,21215,21218,21220,21223,21230,21233,21240,21243 };
 	for (const auto &port : registered_ports)
 		dissector_add_uint("udp.port", port, myproto_handle);
 }
