@@ -11,18 +11,23 @@
 void proto_register_cmemdp(void);
 void proto_reg_handoff_cmemdp(void);
 
+void proto_register_hkexomdd(void);
+void proto_reg_handoff_hkexomdd(void);
+
 extern "C" {
 #if defined(_WIN64)
 __declspec(dllexport)
 #endif
 void plugin_register(void) {
 	proto_register_cmemdp();
+	proto_register_hkexomdd();
 }
 #if defined(_WIN64)
 __declspec(dllexport)
 #endif
 void plugin_reg_handoff(void) {
 	proto_reg_handoff_cmemdp();
+	proto_reg_handoff_hkexomdd();
 }
 #if defined(_WIN64)
 __declspec(dllexport)
