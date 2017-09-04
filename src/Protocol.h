@@ -377,5 +377,4 @@ public:
 }
 ;
 
-
 #endif /* SRC_PROTOCOL_H_ */

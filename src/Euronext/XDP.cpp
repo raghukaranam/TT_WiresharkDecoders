@@ -5,8 +5,6 @@
  *      Author: raghu
  */
 
-
-
 #include<iostream>
 #include<vector>
 #include<map>
@@ -89,7 +87,7 @@ void proto_reg_handoff_euronext_xdp(void) {
 	dissector_handle_t myproto_handle;
 
 	myproto_handle = create_dissector_handle(dissect_euronext_xdp, proto_euronext);
-	const int registered_ports[] = { 55001,55002,55003,55004,55005,55006,55007,55008,55009,55010 };
+	const int registered_ports[] = { 55001, 55002, 55003, 55004, 55005, 55006, 55007, 55008, 55009, 55010 };
 	for (const auto &port : registered_ports)
 		dissector_add_uint("udp.port", port, myproto_handle);
 }

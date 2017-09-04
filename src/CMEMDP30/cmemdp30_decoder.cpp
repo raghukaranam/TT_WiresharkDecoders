@@ -16,10 +16,8 @@
 #include "../Protocol.h"
 using namespace std;
 
-
 static int ett_cmemdp30 = -1, ett_proto_cmemdp_msg = -1;
 static int proto_cmemdp = -1;
-
 
 Protocol cme_proto_list("CMEMDP30");
 
@@ -78,7 +76,7 @@ int dissect_cmemdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
 void proto_register_cmemdp(void) {
 #ifdef __APPLE__
 	int size_templates_xml = (int)___src_CMEMDP30_templates_FixBinary_xml_len;
-    char  *templates_xml = (char *)___src_CMEMDP30_templates_FixBinary_xml;
+	char *templates_xml = (char *)___src_CMEMDP30_templates_FixBinary_xml;
 #else
 	extern char _binary____src_CMEMDP30_templates_FixBinary_xml_start, _binary____src_CMEMDP30_templates_FixBinary_xml_end;
 	int size_templates_xml = (&_binary____src_CMEMDP30_templates_FixBinary_xml_end - &_binary____src_CMEMDP30_templates_FixBinary_xml_start);

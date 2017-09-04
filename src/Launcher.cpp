@@ -14,7 +14,6 @@ void proto_reg_handoff_cmemdp(void);
 void proto_register_hkexomdd(void);
 void proto_reg_handoff_hkexomdd(void);
 
-
 void proto_register_eurex(void);
 void proto_reg_handoff_eurex(void);
 
