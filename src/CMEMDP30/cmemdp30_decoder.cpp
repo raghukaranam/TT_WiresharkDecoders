@@ -12,40 +12,10 @@
 #include<tuple>
 #include <config.h>
 #include <epan/packet.h>
+#include "../legacy_defs.h"
 
 using namespace std;
 
-void proto_register_cmemdp(void);
-void proto_reg_handoff_cmemdp(void);
-
-#ifdef __WIRESHARK_1_8_10
-#define tvb_get_guint16(a,b,c) tvb_get_letohs(a,b)
-#define HFILL_INIT(hf)   \
-	hf.hfinfo.id			= -1;   \
-	hf.hfinfo.parent		= 0;   \
-	hf.hfinfo.ref_type		= HF_REF_TYPE_NONE;   \
-	hf.hfinfo.same_name_next	= NULL;
-#endif
-
-extern "C" {
-#if defined(_WIN64)
-__declspec(dllexport)
-#endif
-void plugin_register(void) {
-	proto_register_cmemdp();
-}
-#if defined(_WIN64)
-__declspec(dllexport)
-#endif
-void plugin_reg_handoff(void) {
-	proto_reg_handoff_cmemdp();
-}
-#if defined(_WIN64)
-__declspec(dllexport)
-#endif
-gchar version[30] = "0.1";
-
-}
 
 static int ett_cmemdp30 = -1, ett_proto_cmemdp_msg = -1;
 static int proto_cmemdp = -1;
@@ -467,12 +437,12 @@ guint8 dissect_inner_pdu(proto_tree *, tvbuff_t *, guint, guint8, packet_info *,
 }
 void proto_register_cmemdp(void) {
 #ifdef __APPLE__
-	int size_templates_xml = (int)___CMEMDP30_templates_FixBinary_xml_len;
-    char  *templates_xml = (char *)___CMEMDP30_templates_FixBinary_xml;
+	int size_templates_xml = (int)___src_CMEMDP30_templates_FixBinary_xml_len;
+    char  *templates_xml = (char *)___src_CMEMDP30_templates_FixBinary_xml;
 #else
-	extern char _binary____CMEMDP30_templates_FixBinary_xml_start, _binary____CMEMDP30_templates_FixBinary_xml_end;
-	int size_templates_xml = (&_binary____CMEMDP30_templates_FixBinary_xml_end - &_binary____CMEMDP30_templates_FixBinary_xml_start);
-	char * templates_xml = &_binary____CMEMDP30_templates_FixBinary_xml_start;
+	extern char _binary____src_CMEMDP30_templates_FixBinary_xml_start, _binary____src_CMEMDP30_templates_FixBinary_xml_end;
+	int size_templates_xml = (&_binary____src_CMEMDP30_templates_FixBinary_xml_end - &_binary____src_CMEMDP30_templates_FixBinary_xml_start);
+	char * templates_xml = &_binary____src_CMEMDP30_templates_FixBinary_xml_start;
 #endif
 
 	proto_list.add("MsgSeqNum", FT_UINT32);
