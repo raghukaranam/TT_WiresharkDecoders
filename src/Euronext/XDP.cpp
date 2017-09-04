@@ -20,7 +20,7 @@ using namespace std;
 static int ett_euronext = -1, ett_proto_euronext_msg = -1;
 static int proto_euronext = -1;
 
-Protocol euronext_proto_list("EURONEXT XDP");
+Protocol euronext_proto_list("XDP");
 
 static
 #ifdef __WIRESHARK_1_8_10
@@ -30,7 +30,7 @@ int dissect_euronext_xdp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 #endif
 		{
 	//Sets str in Tree.
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EURONEXT XDP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XDP");
 	//Clears Info
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -67,9 +67,9 @@ void proto_register_euronext_xdp(void) {
 	static gint *ett[] = { &ett_euronext, &ett_proto_euronext_msg };
 
 	/** registering the myproto protocol with 3 names */
-	proto_euronext = proto_register_protocol("EURONEXT XDP", /** PROTONAME */
-	"euronext", /**  PROTOSHORTNAME */
-	"euronext" /**  PROTOABBREV  */
+	proto_euronext = proto_register_protocol("XDP", /** PROTONAME */
+	"xdp", /**  PROTOSHORTNAME */
+	"xdp" /**  PROTOABBREV  */
 	);
 
 	//auto hf_myproto = proto_registrar_get_nth(proto_myproto);

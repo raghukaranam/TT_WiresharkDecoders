@@ -20,7 +20,7 @@ using namespace std;
 static int ett_euronext_optiq = -1, ett_proto_euronext_optiq_msg = -1;
 static int proto_euronext_optiq = -1;
 
-Protocol euronext_optiq_proto_list("EURONEXT Optiq");
+Protocol euronext_optiq_proto_list("Optiq");
 
 static
 #ifdef __WIRESHARK_1_8_10
@@ -66,7 +66,7 @@ void proto_register_euronext_optiq(void) {
 	static gint *ett[] = { &ett_euronext_optiq, &ett_proto_euronext_optiq_msg };
 
 	/** registering the myproto protocol with 3 names */
-	proto_euronext_optiq = proto_register_protocol("EURONEXT Optiq", /** PROTONAME */
+	proto_euronext_optiq = proto_register_protocol("Optiq", /** PROTONAME */
 	"optiq", /**  PROTOSHORTNAME */
 	"optiq" /**  PROTOABBREV  */
 	);

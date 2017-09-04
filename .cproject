@@ -51,7 +51,7 @@
 									<listOptionValue builtIn="false" value="/usr/include/rapidxml.h"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.flags.1245549057" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++14" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.warnings.toerrors.1853303257" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.toerrors.1853303257" name="Warnings as errors (-Werror)" superClass="gnu.cpp.compiler.option.warnings.toerrors" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1769507046" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1507336709" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker">

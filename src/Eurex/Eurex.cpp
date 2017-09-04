@@ -36,32 +36,27 @@ int dissect_eurex(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
 
 	proto_tree* ti1 = proto_tree_add_item(tree, proto_eurex, tvb, 0, -1, ENC_NA);
 	proto_tree* proto_subtree = proto_item_add_subtree(ti1, ett_eurex);
-	unsigned int start_index = 0;
-	proto_tree_add_item(proto_subtree, eurex_proto_list["PktSize"], tvb, start_index, 2, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree, eurex_proto_list["MsgCount"], tvb, start_index, 1, ENC_LITTLE_ENDIAN);
-	start_index += 2;
-	proto_tree_add_item(proto_subtree, eurex_proto_list["SeqNum"], tvb, start_index, 4, ENC_LITTLE_ENDIAN);
-	start_index += 4;
+	unsigned int start_index = 5;
+
 	guint64 timestamp;
 	nstime_t ts_nstime;
-	timestamp = tvb_get_letoh64(tvb, start_index);
+
+	proto_tree_add_item(proto_subtree, eurex_proto_list["PacketSeqNumber"], tvb, start_index, 4, ENC_BIG_ENDIAN);
+	start_index += 5;
+	timestamp = tvb_get_guint64(tvb, start_index, ENC_BIG_ENDIAN);
 	ts_nstime.secs = timestamp / 1000000000;
 	ts_nstime.nsecs = timestamp % 1000000000;
 
-	proto_tree_add_time(proto_subtree, eurex_proto_list["SendTimestamp"], tvb, start_index, 8, &ts_nstime);
-	start_index += 8;
+	proto_tree_add_time(proto_subtree, eurex_proto_list["SendingTime"], tvb, start_index, 8, &ts_nstime);
+	start_index += 8 + 1;
 #ifndef __WIRESHARK_1_8_10
 	return start_index + 1;
 #endif
 }
 void proto_register_eurex(void) {
-	eurex_proto_list.add("SeqNum", FT_UINT32);
-	eurex_proto_list.add("SendTimestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
-	eurex_proto_list.add("MsgSize", FT_UINT16);
-	eurex_proto_list.add("PktSize", FT_UINT16);
-	eurex_proto_list.add("MsgCount", FT_UINT8);
-	eurex_proto_list.add("MsgType", FT_UINT16);
+	eurex_proto_list.add("SendingTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL);
+	eurex_proto_list.add("PacketSeqNumber", FT_UINT32);
+	eurex_proto_list.add("PartitionID", FT_UINT32);
 
 	/** Setup protocol subtree array */
 	static gint *ett[] = { &ett_eurex, &ett_proto_eurex_msg };
@@ -87,7 +82,7 @@ void proto_reg_handoff_eurex(void) {
 	dissector_handle_t myproto_handle;
 
 	myproto_handle = create_dissector_handle(dissect_eurex, proto_eurex);
-	const int registered_ports[] = { 51000, 51001, 51002, 51003, 51004, 51005 };
+	const int registered_ports[] = { 59033, 59001 };
 	for (const auto &port : registered_ports)
 		dissector_add_uint("udp.port", port, myproto_handle);
 }
