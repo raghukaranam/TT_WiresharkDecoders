@@ -477,7 +477,7 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1764535147" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.979634767" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.2074169309" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Dependencies/legacy-wsinclude-linux/wireshark}&quot;"/>
+									<listOptionValue builtIn="false" value="../../Dependencies/legacy-wsinclude-linux/wireshark"/>
 									<listOptionValue builtIn="false" value="/usr/include/glib-2.0/"/>
 									<listOptionValue builtIn="false" value="/usr/lib64/glib-2.0/include/"/>
 								</option>
@@ -513,7 +513,7 @@
 								<option id="gnu.cpp.link.option.nostdlibs.1062528041" name="No startup or default libs (-nostdlib)" superClass="gnu.cpp.link.option.nostdlibs" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.strip.1464204033" name="Omit all symbol information (-s)" superClass="gnu.cpp.link.option.strip" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.paths.2053540668" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
-									<listOptionValue builtIn="false" value="../Dependencies/legacy-libc-2.11"/>
+									<listOptionValue builtIn="false" value="../../Dependencies/legacy-libc-2.11"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1944151786" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

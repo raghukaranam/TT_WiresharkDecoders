@@ -38,16 +38,16 @@ int dissect_eurex(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
 	proto_tree* proto_subtree = proto_item_add_subtree(ti1, ett_eurex);
 	unsigned int start_index = 5;
 
-	guint64 timestamp;
-	nstime_t ts_nstime;
+//	guint64 timestamp;
+//	nstime_t ts_nstime;
 
 	proto_tree_add_item(proto_subtree, eurex_proto_list["PacketSeqNumber"], tvb, start_index, 4, ENC_BIG_ENDIAN);
 	start_index += 5;
-	timestamp = tvb_get_guint64(tvb, start_index, ENC_BIG_ENDIAN);
-	ts_nstime.secs = timestamp / 1000000000;
-	ts_nstime.nsecs = timestamp % 1000000000;
+	//timestamp = tvb_get_guint64(tvb, start_index, ENC_BIG_ENDIAN);
+	//ts_nstime.secs = timestamp / 1000000000;
+	//ts_nstime.nsecs = timestamp % 1000000000;
 
-	proto_tree_add_time(proto_subtree, eurex_proto_list["SendingTime"], tvb, start_index, 8, &ts_nstime);
+	//proto_tree_add_time(proto_subtree, eurex_proto_list["SendingTime"], tvb, start_index, 8, &ts_nstime);
 	start_index += 8 + 1;
 #ifndef __WIRESHARK_1_8_10
 	return start_index + 1;
